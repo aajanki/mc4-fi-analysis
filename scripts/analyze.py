@@ -105,7 +105,7 @@ def save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist,
         for netloc, freq in domain_hist.most_common():
             f.write(f'{netloc}\t{freq}\n')
 
-    with open(output_path / 'date.tsv', 'w') as f:
+    with open(output_path / 'dates.tsv', 'w') as f:
         for datestr, freq in date_hist.most_common():
             f.write(f'{datestr}\t{freq}\n')
 
