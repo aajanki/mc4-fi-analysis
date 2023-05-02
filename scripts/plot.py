@@ -8,18 +8,10 @@ from pathlib import Path
 
 def main():
     results_path = Path('results')
-
     plot_token_counts(results_path)
-    plt.savefig(results_path / 'tokens.png')
-
     plot_dates(results_path)
-    plt.savefig(results_path / 'dates.png')
-
     plot_languages(results_path)
-    plt.savefig(results_path / 'language_detection.png')
-
     plot_domains(results_path)
-    plt.savefig(results_path / 'domains.png')
 
 
 def plot_token_counts(results_path):
@@ -28,13 +20,19 @@ def plot_token_counts(results_path):
                      header=None,
                      names=['Number of tokens', 'Count'])
 
-    print('Number of tokens:')
-    print(f'Min: {df["Number of tokens"].min()}')
-    print(f'Max: {df["Number of tokens"].max()}')
-    print(f'Mean: {(df["Count"] * df["Number of tokens"]).sum()/df["Count"].sum():.1f}  ')
+    print(f'Number of documents: {df["Count"].sum()}')
+    print(
+        'Number of tokens per document: '
+        f'min {df["Number of tokens"].min()}, '
+        f'max {df["Number of tokens"].max()}, '
+        f'mean {(df["Count"] * df["Number of tokens"]).sum() / df["Count"].sum():.1f}'
+    )
 
     plt.figure()
-    sns.histplot(df, x='Number of tokens', weights='Count', bins=25, binrange=[0, 4000])
+    ax = sns.histplot(df, x='Number of tokens', weights='Count', bins=25, binrange=[0, 4000])
+    ax.set_ylabel('Number of documents')
+
+    plt.savefig(results_path / 'tokens.png')
 
 
 def plot_dates(results_path):
@@ -46,8 +44,10 @@ def plot_dates(results_path):
 
     plt.figure()
     ax = sns.histplot(df, x='Date', weights='Count', bins=25)
-    ax.set_title('dates')
     ax.set_xlabel('')
+    ax.set_ylabel('Number of documents')
+
+    plt.savefig(results_path / 'dates.png')
 
 
 def plot_languages(results_path):
@@ -58,16 +58,20 @@ def plot_languages(results_path):
 
     fi_proportion = (df[df["Detected language"] == "fi-fi"]["Count"] / df["Count"].sum()).values[0]
 
-    print(f'Likely Finnish: {100 * fi_proportion:.1f} %')
+    print(f'Proportion of documents very likely in Finnish: {100 * fi_proportion:.1f} %')
 
     plt.figure()
-    sns.barplot(df, x="Detected language", y="Count")
+    ax = sns.barplot(df, x="Detected language", y="Count")
+    ax.set_ylabel('Number of documents')
+
+    plt.savefig(results_path / 'language_detection.png')
 
 
 def plot_domains(results_path):
     df = pd.read_csv(results_path / 'domains_annotated.tsv',
                      sep='\t',
                      header=None,
+                     low_memory=False,
                      names=['Domain', 'Count', 'Content class'])
     df = df.sort_values(by='Count', ascending=False)
 
@@ -81,6 +85,8 @@ def plot_domains(results_path):
     ax.set_ylabel('Documents')
     ax.set_xlabel('Domain rank')
 
+    plt.savefig(results_path / 'domains_cumulative.png')
+
     # Treemap of largest domains
     plt.figure()
     df2 = df.dropna()
@@ -91,6 +97,8 @@ def plot_domains(results_path):
     ax = squarify.plot(sizes=df3['Count'], label=df3['Content class'], color=palette)
     ax.set_title(f'{len(df2)} largest domains ({100*prop_pages:.0f}% of pages)')
     plt.axis('off')
+
+    plt.savefig(results_path / 'domains_treemap.png')
 
 
 if __name__ == '__main__':
