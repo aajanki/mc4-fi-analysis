@@ -95,7 +95,7 @@ def plot_domains(results_path):
 
     palette = sns.color_palette('muted')
     ax = squarify.plot(sizes=df3['Count'], label=df3['Content class'], color=palette)
-    ax.set_title(f'{len(df2)} largest domains ({100*prop_pages:.0f}% of pages)')
+    ax.set_title(f'{len(df2)} largest domains ({100*prop_pages:.0f}% of all pages)')
     plt.axis('off')
 
     plt.savefig(results_path / 'domains_treemap.png')
