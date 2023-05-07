@@ -19,6 +19,7 @@ def main():
     sample_path.mkdir(parents=True, exist_ok=True)
 
     doc_count = 0
+    n_bytes = 0
     domain_hist = Counter()
     date_hist = Counter()
     token_count_hist: defaultdict[int, int] = defaultdict(int)
@@ -36,6 +37,8 @@ def main():
             save_sample_document(datapoint, sample_path)
 
         doc_count += 1
+        n_bytes += len(datapoint['text'].encode('utf-8'))
+
         text = unicodedata.normalize('NFC', datapoint['text'].strip())
         text = re.sub(r'\s+', ' ', text)
 
@@ -71,13 +74,13 @@ def main():
             date_hist.update([datestr])
 
         if doc_count % 100000 == 0:
-            save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, output_path)
+            save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, n_bytes, output_path)
 
         if doc_count % 100000 == 0:
             del nlp
             nlp = create_nlp()
 
-    save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, output_path)
+    save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, n_bytes, output_path)
 
 
 def create_nlp():
@@ -98,7 +101,7 @@ def save_sample_document(datapoint, sample_path):
         pass
 
 
-def save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, output_path):
+def save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist, doc_count, n_bytes, output_path):
     print(f'Saving statistics after {doc_count} documents to {output_path}')
 
     with open(output_path / 'domains.tsv', 'w') as f:
@@ -116,6 +119,13 @@ def save_statistics(domain_hist, date_hist, token_count_hist, fi_detection_hist,
     with open(output_path / 'language_detection.tsv', 'w') as f:
         for lang, freq in fi_detection_hist.items():
             f.write(f'{lang}\t{freq}\n')
+
+    with open(output_path / 'corpus_statistics.json', 'w') as f:
+        data = {
+            'doc_count': doc_count,
+            'text_bytes': n_bytes,
+        }
+        json.dump(data, f)
 
 
 def domain(url: str) -> str:
