@@ -12,6 +12,7 @@ def main():
     plot_dates(results_path)
     plot_languages(results_path)
     plot_domains(results_path)
+    plot_top_domain_page_counts(results_path)
 
 
 def plot_token_counts(results_path):
@@ -99,6 +100,24 @@ def plot_domains(results_path):
     plt.axis('off')
 
     plt.savefig(results_path / 'domains_treemap.png')
+
+
+def plot_top_domain_page_counts(results_path):
+    df = pd.read_csv(results_path / 'domains.tsv',
+                     sep='\t',
+                     header=None,
+                     low_memory=False,
+                     names=['Domain', 'Count'])
+    df_top = df.loc[:25].copy()
+    df_top['Count'] = df_top['Count'] / 1_000_000
+
+    ax = sns.barplot(df_top, x='Count', y='Domain', color='b')
+    ax.spines[['right', 'top']].set_visible(False)
+    plt.tight_layout()
+    ax.set_ylabel('')
+    ax.set_xlabel('Verkkosivujen lukumäärä (miljoonaa)')
+
+    plt.savefig(results_path / 'top_domain_sizes.png')
 
 
 if __name__ == '__main__':
