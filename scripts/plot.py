@@ -11,7 +11,7 @@ def main():
     plot_token_counts(results_path)
     plot_dates(results_path)
     plot_languages(results_path)
-    plot_domains(results_path)
+    plot_topics(results_path)
     plot_top_domain_page_counts(results_path)
 
 
@@ -68,7 +68,7 @@ def plot_languages(results_path):
     plt.savefig(results_path / 'language_detection.png')
 
 
-def plot_domains(results_path):
+def plot_topics(results_path):
     df = pd.read_csv(results_path / 'domains_annotated.tsv',
                      sep='\t',
                      header=None,
@@ -96,10 +96,10 @@ def plot_domains(results_path):
 
     palette = sns.color_palette('muted')
     ax = squarify.plot(sizes=df3['Count'], label=df3['Content class'], color=palette)
-    ax.set_title(f'{len(df2)} largest domains ({100*prop_pages:.0f}% of all pages)')
+    ax.set_title(f'{len(df2)} suurinta verkkotunnusta ({100*prop_pages:.0f}% kaikista sivuista)')
     plt.axis('off')
 
-    plt.savefig(results_path / 'domains_treemap.png')
+    plt.savefig(results_path / 'topics_treemap.png')
 
 
 def plot_top_domain_page_counts(results_path):
@@ -111,6 +111,7 @@ def plot_top_domain_page_counts(results_path):
     df_top = df.loc[:25].copy()
     df_top['Count'] = df_top['Count'] / 1_000_000
 
+    plt.figure()
     ax = sns.barplot(df_top, x='Count', y='Domain', color='b')
     ax.spines[['right', 'top']].set_visible(False)
     plt.tight_layout()
