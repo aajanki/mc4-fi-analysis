@@ -94,9 +94,9 @@ def plot_topics(results_path):
     df3 = df2[['Content class', 'Count']].groupby('Content class').sum().reset_index()
     prop_pages = df2['Count'].sum()/df['Count'].sum()
 
-    palette = sns.color_palette('muted')
+    palette = sns.color_palette('Set2')
     ax = squarify.plot(sizes=df3['Count'], label=df3['Content class'], color=palette)
-    ax.set_title(f'{len(df2)} suurinta verkkotunnusta ({100*prop_pages:.0f}% kaikista sivuista)')
+    ax.set_title(f'{len(df2)} suurinta verkkotunnusta ({100*prop_pages:.0f}% kaikista sivuista) sisältötyypeittäin')
     plt.axis('off')
 
     plt.savefig(results_path / 'topics_treemap.png')
